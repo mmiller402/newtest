@@ -77,19 +77,31 @@ public class Piece {
             moves.add(xpos + (ypos + direction) * 8);
         }
 
-        //Diagonal takes
+        //Move two if first move
+        if (isWhite && ypos == 6 && board[xpos][ypos + direction * 2] <= 0) {
+            moves.add(xpos + (ypos + direction * 2) * 8);
+        }
+        else if (!isWhite && ypos == 1 && board[xpos][ypos + direction * 2] <= 0) {
+            moves.add(xpos + (ypos + direction * 2) * 8);
+        }
+
+        //Diagonal takes + En Passant
         if (xpos > 0) {
             int otherIndex = board[xpos - 1][ypos + direction];
-            if (otherIndex > 0 && (index ^ otherIndex) > 7)
+
+            boolean canEnPassant = b.getEnPassant() == xpos - 1 + (ypos + direction) * 8;
+
+            if (canEnPassant || (otherIndex > 0 && (index ^ otherIndex) > 7))
                 moves.add(xpos - 1 + (ypos + direction) * 8);
         }
         if (xpos < 7) {
             int otherIndex = board[xpos + 1][ypos + direction];
-            if (otherIndex > 0 && (index ^ otherIndex) > 7)
+
+            boolean canEnPassant = b.getEnPassant() == xpos + 1 + (ypos + direction) * 8;
+
+            if (canEnPassant || otherIndex > 0 && (index ^ otherIndex) > 7)
                 moves.add(xpos + 1 + (ypos + direction) * 8);
         }
-
-        //TODO: En Passant logic
 
         //Return completed move list
         return moves;
@@ -191,6 +203,32 @@ public class Piece {
             }
         }
 
+        //Castling
+        boolean isWhite = (index & 8) > 7;
+        if (isWhite) {
+
+            //King side
+            if (board[5][7] <= 0 && board[6][7] <= 0 && (b.getCanCastle() & 2) == 2) {
+                moves.add(6 + 7 * 8);
+            }
+
+            //Queen side
+            if (board[1][7] <= 0 && board[2][7] <= 0 && board[3][7] <= 0 && (b.getCanCastle() & 1) == 1) {
+                moves.add(2 + 7 * 8);
+            }
+        } else {
+
+            //King side
+            if (board[5][0] <= 0 && board[6][0] <= 0 && (b.getCanCastle() & 8) == 8) {
+                moves.add(6 + 0 * 8);
+            }
+
+            //Queen side
+            if (board[1][0] <= 0 && board[2][0] <= 0 && board[3][0] <= 0 && (b.getCanCastle() & 4) == 4) {
+                moves.add(2 + 0 * 8);
+            }
+        }
+
         //Return complete list
         return moves;
     }
@@ -207,7 +245,7 @@ public class Piece {
         int index = board[xpos][ypos];
 
         //Up
-        for (int y = ypos; y >= 0; y--) {
+        for (int y = ypos - 1; y >= 0; y--) {
             //Check for piece in the way
             if (board[xpos][y] > 0) {
                 //Same color
@@ -225,7 +263,7 @@ public class Piece {
         }
 
         //Down
-        for (int y = ypos; y < 8; y++) {
+        for (int y = ypos + 1; y < 8; y++) {
             //Check for piece in the way
             if (board[xpos][y] > 0) {
                 //Same color
@@ -243,7 +281,7 @@ public class Piece {
         }
 
         //Left
-        for (int x = xpos; x >= 0; x--) {
+        for (int x = xpos - 1; x >= 0; x--) {
             //Check for piece in the way
             if (board[x][ypos] > 0) {
                 //Same color
@@ -261,7 +299,7 @@ public class Piece {
         }
 
         //Right
-        for (int x = xpos; x < 8; x++) {
+        for (int x = xpos + 1; x < 8; x++) {
             //Check for piece in the way
             if (board[x][ypos] > 0) {
                 //Same color
@@ -297,6 +335,8 @@ public class Piece {
         int x = xpos, y = ypos;
 
         //NE
+        x = xpos + 1;
+        y = ypos - 1;
         while (x < 8 && y >= 0) {
             //Check for piece in the way
             if (board[x][y] > 0) {
@@ -320,8 +360,8 @@ public class Piece {
         }
 
         //SE
-        x = xpos;
-        y = ypos;
+        x = xpos + 1;
+        y = ypos + 1;
         while (x < 8 && y < 8) {
             //Check for piece in the way
             if (board[x][y] > 0) {
@@ -344,8 +384,8 @@ public class Piece {
         }
 
         //SW
-        x = xpos;
-        y = ypos;
+        x = xpos - 1;
+        y = ypos + 1;
         while (x >= 0 && y < 8) {
             //Check for piece in the way
             if (board[x][y] > 0) {
@@ -368,8 +408,8 @@ public class Piece {
         }
 
         //NW
-        x = xpos;
-        y = ypos;
+        x = xpos - 1;
+        y = ypos - 1;
         while (x >= 0 && y >= 0) {
             //Check for piece in the way
             if (board[x][y] > 0) {
