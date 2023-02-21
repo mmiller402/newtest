@@ -5,6 +5,34 @@ public class Piece {
     //// Methods for piece moving ////
     public static ArrayList<Integer> getLegalMoves(Board b, int xpos, int ypos) {
 
+        //Get all moves from piece
+        ArrayList<Integer> allMoves = getAllMoves(b, xpos, ypos);
+ 
+        //Get piece color
+        boolean isWhite = (b.getBoard()[xpos][ypos] & 8) > 7;
+
+        //Check every move to make sure king is not put in check
+        for (int i = 0; i < allMoves.size(); i++) {
+
+            //Create a temporary board so main board is unaffected
+            var tempBoard = new Board(b);
+            tempBoard.movePiece(xpos, ypos, allMoves.get(i) % 8, allMoves.get(i) / 8);
+
+            //Check to see if king is in check
+            boolean isInCheck = inCheck(tempBoard, isWhite);
+            if (isInCheck) {
+                //Take move out
+                allMoves.remove(i);
+                i--;
+            }
+        }
+
+        //Return all legal moves
+        return allMoves;
+    }
+
+    public static ArrayList<Integer> getAllMoves(Board b, int xpos, int ypos) {
+
         //Figure out which piece is moving
         int index = b.getBoard()[xpos][ypos];
 
@@ -433,5 +461,51 @@ public class Piece {
 
         //Return final output
         return moves;
+    }
+
+    //Check a current board configuration for check
+    public static boolean inCheck(Board b, boolean checkWhite) {
+
+        int[][] board = b.getBoard();
+
+        //Find king
+        int kingIndex = checkWhite ? 14 : 6;
+        int kingx = -1;
+        int kingy = -1;
+
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+
+                if (board[x][y] == kingIndex) {
+                    kingx = x;
+                    kingy = y;
+                    break;
+                }
+            }
+
+            if (kingx != -1)
+                break;
+        }
+
+        //Loop through every possible enemy move, making sure none hit the king
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+
+                int index = board[x][y];
+                boolean isWhite = (index & 8) > 7;
+
+                //Check if piece is an enemy piece
+                if (index > 0 && (isWhite ^ checkWhite)) {
+
+                    //Loop through possible moves
+                    ArrayList<Integer> enemyMoves = getAllMoves(b, x, y);
+                    if (enemyMoves.contains(kingx + kingy * 8))
+                        return true;
+                }
+            }
+        }
+
+        //No pieces can take the king, return false
+        return false;
     }
 }

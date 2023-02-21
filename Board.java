@@ -9,6 +9,8 @@ public class Board {
     private int enPassant, canCastle;
     private ArrayList<Integer> whiteCaptures, blackCaptures;
 
+    private boolean whiteTurn;
+
     //Current selected piece and movelist
     private int selectedPieceX, selectedPieceY;
     private ArrayList<Integer> selectedMoves;
@@ -30,6 +32,33 @@ public class Board {
         selectedPieceX = -1;
         selectedPieceY = -1;
         selectedMoves = new ArrayList<Integer>();
+
+        //Whose turn it is
+        whiteTurn = true;
+    }
+
+    //Copy of a board
+    public Board(Board b) {
+
+        //Clone board into new object
+        board = new int[8][8];
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                board[x][y] = b.getBoard()[x][y];
+            }
+        }
+
+        enPassant = b.getEnPassant();
+        canCastle = b.getCanCastle();
+
+        whiteCaptures = b.getWhiteCaptures();
+        blackCaptures = b.getBlackCaptures();
+
+        selectedPieceX = b.getSelectedPieceX();
+        selectedPieceY = b.getSelectedPieceY();
+        selectedMoves = b.getSelectedMoves();
+
+        whiteTurn = b.getWhiteTurn();
     }
 
     //Getters
@@ -56,9 +85,43 @@ public class Board {
         return selectedMoves;
     }
 
+    public boolean getWhiteTurn() {
+        return whiteTurn;
+    }
+
+    public ArrayList<Integer> getWhiteCaptures() {
+        return whiteCaptures;
+    }
+    public ArrayList<Integer> getBlackCaptures() {
+        return blackCaptures;
+    }
+
     //Sets board position
     public void setBoard(int[][] b) {
         board = b;
+    }
+
+    public void setEnPassant(int e) {
+        enPassant = e;
+    }
+
+    public void setCanCastle(int c) {
+        canCastle = c;
+    }
+
+    public void setSelectedPieceX(int x) {
+        selectedPieceX = x;
+    }
+    public void setSelectedPieceY(int y) {
+        selectedPieceY = y;
+    }
+
+    public void setSelectedMoves(ArrayList<Integer> m) {
+        selectedMoves = m;
+    }
+
+    public void setWhiteTurn(boolean w) {
+        whiteTurn = w;
     }
 
     //Move a piece, works on any piece and any square, so you must verify the move before
@@ -68,7 +131,6 @@ public class Board {
         int pieceIndex = board[curx][cury];
 
         //Check for En Passant
-        int prevEnPassant = enPassant;
         if ((pieceIndex & 7) == 1 && Math.abs(newy - cury) == 2) {
             
             //Get location that En Passant can happen in (row 1 or 5)
@@ -175,15 +237,17 @@ public class Board {
             board[enPassantedX][enPassantedY] = 0;
         }
 
-        //Move piece and update index
+        //Move piece and update turn
         board[newx][newy] = pieceIndex;
+        whiteTurn = !whiteTurn;
     }
 
     //Select a piece and update its position and moves
     public void selectPiece(int xpos, int ypos) {
 
-        //Check to make sure a piece occupies this square
-        if (board[xpos][ypos] <= 0) {
+        //Check to make sure a piece occupies this square and it is their turn
+        boolean wrongTurn = ((board[xpos][ypos] & 8) == 8) ^ whiteTurn;
+        if (wrongTurn || board[xpos][ypos] <= 0) {
 
             //If so, reset variables
             selectedPieceX = -1;
@@ -207,5 +271,32 @@ public class Board {
         selectedPieceX = -1;
         selectedPieceY = -1;
         selectedMoves.clear();
+    }}
+
+    //Check for any legal moves, returns true if there are none
+    public boolean noLegalMoves(boolean checkWhite) {
+
+        //Go through all pieces of that color and check if any moves are available
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+
+                if (board[x][y] <= 0)
+                    continue;
+
+                //Get index and color of current piece
+                int index = board[x][y];
+                boolean isWhite = (index & 8) > 7;
+                if (!(checkWhite ^ isWhite)) {
+
+                    //Piece is the color to be checked
+                    ArrayList<Integer> moves = Piece.getLegalMoves(this, x, y);
+                    if (moves.size() > 0)
+                        return false;
+                }
+            }
+        }
+
+        //No moves triggered a return
+        return true;
     }
 }
