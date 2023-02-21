@@ -107,10 +107,36 @@ public class Board {
 
             //White king moves
             if (curx == 4 && cury == 7) {
+
+                //Check if king castled
+                if (newx == 6) {
+
+                    //Move kingside rook
+                    movePiece(7, 7, 5, 7);
+                } else if (newx == 2) {
+
+                    //Move queenside rook
+                    movePiece(0, 7, 3, 7);
+                }
+
+                //Remove castle abilities from white
                 canCastle = canCastle & 12;
             }
             //Black king moves
             else if (curx == 4 && cury == 0) {
+
+                //Check if king castled
+                if (newx == 6) {
+
+                    //Move kingside rook
+                    movePiece(7, 0, 5, 0);
+                } else if (newx == 2) {
+
+                    //Move queenside rook
+                    movePiece(0, 0, 3, 0);
+                }
+
+                //Remove castle abilities from black
                 canCastle = canCastle & 3;
             }
         }
