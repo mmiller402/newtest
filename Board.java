@@ -299,4 +299,35 @@ public class Board {
         //No moves triggered a return
         return true;
     }
+
+    //Check if any moves are legal, return true if no moves are legal
+    public boolean noLegalMoves(boolean checkWhite) {
+
+        //Loop through every piece, checking all moves
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                
+                //Piece index
+                int index = board[x][y];
+
+                if (index <= 0)
+                    continue;
+
+                //Check if piece is one you are checking
+                boolean isWhite = (index & 8) > 7;
+                if (!(isWhite ^ checkWhite)) {
+
+                    //Get moves from piece
+                    ArrayList<Integer> moves = Piece.getLegalMoves(this, x, y);
+
+                    //If there is at least one legal move, return false
+                    if (moves.size() > 0)
+                        return false;
+                }
+            }
+        }
+
+        //No legal moves were found; return true
+        return true;
+    }
 }
