@@ -139,6 +139,7 @@ public class GUI extends JPanel implements MouseListener {
         this.add(new JLabel(winMessage));
 
         //Game over variable
+        gameOver = true;
     }
 
     //Mouse events
@@ -150,7 +151,7 @@ public class GUI extends JPanel implements MouseListener {
 
         //Only work if game is still happening
         if (!gameOver) {
-            
+
             //Get x and y square positions on board
             int xpos = e.getX() / squareSize;
             int ypos = e.getY() / squareSize;
