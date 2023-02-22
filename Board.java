@@ -303,4 +303,22 @@ public class Board {
         //No legal moves were found; return true
         return true;
     }
+
+    //Check for a checkmate
+    public boolean isCheckmated(boolean checkWhite) {
+
+        //Find if there are any legal moves
+        if (noLegalMoves(checkWhite)) {
+
+            //Find if king is in check
+            if (Piece.inCheck(this, checkWhite)) {
+
+                //Checkmate
+                return true;
+            }
+        }
+
+        //Didn't pass checkmate conditions
+        return false;
+    }
 }

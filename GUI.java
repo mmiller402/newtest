@@ -15,8 +15,11 @@ public class GUI extends JPanel implements MouseListener {
     //Initialize some other variables
     private int squareSize, boardsize;
     private Board board;
+    private boolean gameOver;
 
     public GUI(Board b) {
+
+        gameOver = false;
 
         board = b;
 
@@ -128,6 +131,16 @@ public class GUI extends JPanel implements MouseListener {
         }
     }
 
+    //End the game
+    public void endGame(boolean whiteWins) {
+
+        //Add a JLabel with the text saying who won
+        String winMessage = whiteWins ? "White wins!" : "Black wins!";
+        this.add(new JLabel(winMessage));
+
+        //Game over variable
+    }
+
     //Mouse events
     public void mouseClicked(MouseEvent e) {}
 
@@ -135,26 +148,36 @@ public class GUI extends JPanel implements MouseListener {
 
     public void mouseReleased(MouseEvent e) {
 
-        //Get x and y square positions on board
-        int xpos = e.getX() / squareSize;
-        int ypos = e.getY() / squareSize;
+        //Only work if game is still happening
+        if (!gameOver) {
+            
+            //Get x and y square positions on board
+            int xpos = e.getX() / squareSize;
+            int ypos = e.getY() / squareSize;
 
-        //Check if piece is in possible moves
-        if (board.getSelectedMoves().contains(xpos + ypos * 8)) {
+            //Check if piece is in possible moves
+            if (board.getSelectedMoves().contains(xpos + ypos * 8)) {
 
-            //Move selected piece to new place
-            board.movePiece(board.getSelectedPieceX(), board.getSelectedPieceY(), xpos, ypos);
+                //Move selected piece to new place
+                board.movePiece(board.getSelectedPieceX(), board.getSelectedPieceY(), xpos, ypos);
 
-            //Reset selection
-            board.resetSelectedPiece();
+                //Check for a checkmate
+                boolean checkmated = board.isCheckmated(board.getWhiteTurn());
+                if (checkmated) {
+                    endGame(board.getWhiteTurn());
+                }
+
+                //Reset selection
+                board.resetSelectedPiece();
+            }
+            else {
+
+                //Update board selected piece variables
+                board.selectPiece(xpos, ypos);
+            }
+
+            this.repaint();
         }
-        else {
-
-            //Update board selected piece variables
-            board.selectPiece(xpos, ypos);
-        }
-
-        this.repaint();
     }
 
     public void mouseEntered(MouseEvent e) {}
