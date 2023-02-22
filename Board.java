@@ -271,33 +271,6 @@ public class Board {
         selectedPieceX = -1;
         selectedPieceY = -1;
         selectedMoves.clear();
-    }}
-
-    //Check for any legal moves, returns true if there are none
-    public boolean noLegalMoves(boolean checkWhite) {
-
-        //Go through all pieces of that color and check if any moves are available
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
-
-                if (board[x][y] <= 0)
-                    continue;
-
-                //Get index and color of current piece
-                int index = board[x][y];
-                boolean isWhite = (index & 8) > 7;
-                if (!(checkWhite ^ isWhite)) {
-
-                    //Piece is the color to be checked
-                    ArrayList<Integer> moves = Piece.getLegalMoves(this, x, y);
-                    if (moves.size() > 0)
-                        return false;
-                }
-            }
-        }
-
-        //No moves triggered a return
-        return true;
     }
 
     //Check if any moves are legal, return true if no moves are legal
