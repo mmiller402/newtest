@@ -5,6 +5,9 @@ import javax.swing.*;
 
 public class Board {
 
+    //ArrayList for board positions
+    private ArrayList<Board> prevMoves;
+
     private int[][] board;
     private int enPassant, canCastle;
     private ArrayList<Integer> whiteCaptures, blackCaptures;
@@ -35,6 +38,9 @@ public class Board {
 
         //Whose turn it is
         whiteTurn = true;
+
+        //Initialize previous moves
+        prevMoves = new ArrayList<Board>();
     }
 
     //Copy of a board
@@ -126,6 +132,9 @@ public class Board {
 
     //Move a piece, works on any piece and any square, so you must verify the move before
     public void movePiece(int curx, int cury, int newx, int newy) {
+
+        //Add current board position to prevMoves
+        prevMoves.add(new Board(this));
 
         //Get index and piece from current position
         int pieceIndex = board[curx][cury];
@@ -320,5 +329,13 @@ public class Board {
 
         //Didn't pass checkmate conditions
         return false;
+    }
+
+    //Undo a move and reset the board to previous move
+    public void undoMove() {
+
+        Board previousBoard = prevMoves.remove(prevMoves.size());
+        
+        
     }
 }
